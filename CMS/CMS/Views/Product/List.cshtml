@@ -1,0 +1,316 @@
+﻿@{
+    Layout = "../Shared/_BaseLayout.cshtml";
+}
+@section TopStyles{
+    
+<link href="~/css/bootstrap.min.css" rel="stylesheet" />
+<link href="~/css/font-awesome.css" rel="stylesheet" />
+<link href="~/css/plugins/jqgrid/ui.jqgrid.css" rel="stylesheet" />
+<link href="~/css/plugins/jqgrid/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+<link href="~/css/animate.css" rel="stylesheet" />
+<link href="~/css/style.css" rel="stylesheet" />
+    <style>
+        #FrmGrid_table_list_sku{
+            height:auto !important;
+        }
+    </style>
+    }
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5 style="text-align:center">商品列表</h5>
+                </div>
+                <div class="ibox-content">
+
+
+                    <div class="jqGrid_wrapper">
+                        <table id="table_list_2"></table>
+                        <div id="pager_list_2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" style="width:800px !important">
+        <div class="modal-content animated">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="closeModal()">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">关闭</span>
+                </button>
+                <small class="font-bold">商品规格属性</small>
+            </div>
+            <div class="modal-body">
+                <div class="jqGrid_wrapper">
+                    <table id="table_list_sku"></table>
+                    <div id="pager_list_sku"></div>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal" onclick="closeModal()">关闭</button>
+                <button type="button" class="btn btn-primary">保存</button>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+                       
+@section TopScripts{
+    
+<script src="~/Js/plugins/peity/jquery.peity.min.js"></script>
+<script src="~/Js/plugins/jqgrid/jquery.jqGrid.src.js"></script>
+<script src="~/Js/plugins/jqgrid/grid.locale-cn.js"></script>
+<script src="~/Js/content.js"></script>
+    }
+@section BottomScripts{
+    <script>
+        $(document).ready(function () {
+
+            //$.jgrid.defaults.styleUI = 'Bootstrap';
+            // Examle data for jqGrid
+           
+            // Configuration for jqGrid Example 2
+            $("#table_list_2").jqGrid({
+                url: "../Product/GetProductList",
+                datatype: "json",
+                height: 450,
+                autowidth: true,
+                shrinkToFit: true,
+                rowNum: 20,
+                rowList: [20, 50, 100],
+                colNames: ['序号', '名称', '属性', '添加时间', '上架时间'],
+                colModel: [
+                    {
+                        name: 'gid',
+                        index: 'gid',
+                        editable: true,
+                        width: 60,
+                        sorttype: "int",
+                        search: true,
+                        hidden:true
+                    },
+                    {
+                        name: 'Title',
+                        index: 'title',
+                        editable: true,
+                        width: 60,
+                        sorttype: "int",
+                        search: true
+                    }, {
+                        name: 'ProPerty',
+                        index: 'ProPerty',
+                        editable: true,
+                        width: 60,
+                        sorttype: "int",
+                        search: true
+                    }, 
+                    {
+                        name: 'dAddTime',
+                        index: 'dAddTime',
+                        editable: false,
+                        width: 90,
+                        sorttype: "date",
+                        formatter: "date",
+                        stype:'date'
+                    },
+                    {
+                        name: 'dDisplayTime',
+                        index: 'dDisplayTime',
+                        editable: false,
+                        width: 100,
+                        sorttype: "date",
+                        formatter: "date",
+                        stype: 'date'
+                    }
+                ],
+                sortname: 'dAddTime',
+                pager: "#pager_list_2",
+                viewrecords: true,
+                caption: "商品列表",
+                edit:false,
+                hidegrid: false,
+                editurl: '../Product/Edit',
+                loadComplete: function (result) {
+                    //console.log(result);
+                },
+                ondblClickRow: function (rowid, iRow, iCol, e) {
+
+                    var searchURL = window.location.search;
+                    searchURL = searchURL.substring(1, searchURL.length);
+                    var type = searchURL.split("&")[0].split("=")[1];
+                    var row = jQuery("#table_list_2").jqGrid('getRowData', rowid);
+                    if (type == "goods") {
+                        window.location.href = "../Product/Content?gid=" + row.gid;
+                    } else {
+                        console.log(row);
+                        ShowSku(row);
+                    }
+                },
+            });
+
+            // Add selection
+            $("#table_list_2").setSelection(1, true);
+
+
+            // Setup buttons
+            $("#table_list_2").jqGrid('navGrid', '#pager_list_2', {
+                edit: true,
+                add: true,
+                del: true,
+                search: true
+            }, {
+                height: 200,
+                reloadAfterSubmit: true
+            });
+            jQuery("#table_list_2").jqGrid('inlineNav', "#pager_list_2");
+            //$("#table_list_2").jqGrid('addRow', function (row) {
+            //    console.log(row);
+            //});
+            //$("#table_list_2").jqGrid('editRow', function (row) {
+            //    console.log(row);
+            //});
+
+            // Add responsive to jqGrid
+            $(window).bind('resize', function () {
+                var width = $('.jqGrid_wrapper').width();
+                $('#table_list_2').setGridWidth(width);
+            });
+            SetLineOperateVisiable();
+
+        });
+        function SetLineOperateVisiable() {
+            document.getElementById("table_list_2_iladd").style.display = "none";
+            document.getElementById("table_list_2_iledit").style.display = "none";
+            document.getElementById("table_list_2_ilsave").style.display = "none";
+            document.getElementById("table_list_2_ilcancel").style.display = "none";
+        }
+        function ShowSku(row){
+            var modal = document.getElementById("myModal");
+
+            $("#table_list_sku").jqGrid({
+                url: "../Product/GetProductSkuList",
+                datatype: "json",
+                height: 300,
+                postData: { gid: row.gid },
+                width:740,
+                shrinkToFit: true,
+                rowNum: 20,
+                rowList: [20, 50, 100],
+                colNames: ['序号', '名称', '原价', '价格', '库存数量', '图片路径'],
+                colModel: [
+                    {
+                        name: 'sid',
+                        index: 'sid',
+                        editable: true,
+                        width: 60,
+                        sorttype: "int",
+                        search: true,
+                        hidden: true
+                    },
+                    {
+                        name: 'Name',
+                        index: 'name',
+                        editable: true,
+                        width: 60,
+                        sorttype: "int",
+                        search: true
+                    }, {
+                        name: 'costprice',
+                        index: 'costprice',
+                        editable: true,
+                        width: 60,
+                        sorttype: "double",
+                        search: true,
+                        editrules: { number: true, minValue: 0, maxValue: 999999999 }
+                    },
+                    {
+                        name: 'Price',
+                        index: 'price',
+                        editable: true,
+                        width: 90,
+                        sorttype: "double",
+                        editrules: { number: true, minValue: 0, maxValue: 999999999 }
+                    },
+                    {
+                        name: 'KuCun',
+                        index: 'kucun',
+                        editable: true,
+                        width: 100,
+                        sorttype: "int",
+                        editrules: { number: true, minValue: 0, maxValue: 999999999 }
+                    },
+                    {
+                        name: 'ImgUrl',
+                        index: 'imgurl',
+                        editable: true,
+                        width: 100,
+                        sorttype: "text",
+                        editrules: { rul: true}
+                    }
+                ],
+                sortname: 'dAddTime',
+                pager: "#pager_list_sku",
+                viewrecords: true,
+                caption: "属性规格列表",
+                edit: false,
+                hidegrid: false,
+                editurl: '../Product/EditSku',
+                loadComplete: function (result) {
+                    //console.log(result);
+                },
+                ondblClickRow: function (rowid, iRow, iCol, e) {
+                    //var row = jQuery("#table_list_2").jqGrid('getRowData', rowid);
+                    //console.log(row);
+                    //ShowSku(row);
+                },
+                formatoptions: {
+                    delOptions: {
+                        onclickSubmit: function (params, posdata) {
+                            
+                        },
+                    }
+                },
+                addEditBeforeSubmit: beforeSubmit
+            });
+
+            // Add selection
+            $("#table_list_sku").setSelection(1, true);
+
+
+            // Setup buttons
+            $("#table_list_sku").jqGrid('navGrid', '#pager_list_sku', {
+                edit: true,
+                add: true,
+                del: true,
+                search: true
+            }, {
+                height: 200,
+                reloadAfterSubmit: true
+            });
+            jQuery("#table_list_sku").jqGrid('inlineNav', "#pager_list_sku");
+            $("#table_list_sku").jqGrid('setGridParam', {
+                postData: { gid: row.gid },
+            }).trigger('reloadGrid');
+
+            document.getElementById("table_list_sku_iladd").style.display = "none";
+            document.getElementById("table_list_sku_iledit").style.display = "none";
+            document.getElementById("table_list_sku_ilsave").style.display = "none";
+            document.getElementById("table_list_sku_ilcancel").style.display = "none";
+            
+            modal.style.display = "block";
+
+            //$("#table_list_sku").jqGridAddEditBeforeSubmit = beforeSubmit;
+        }
+        function closeModal() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+        function beforeSubmit(postdata, dom, frmoper) {
+            postdata.goodsid = $("#table_list_sku")[0].p.postData.gid;
+        }
+    </script>
+    }

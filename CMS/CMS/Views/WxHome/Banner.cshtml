@@ -1,0 +1,255 @@
+﻿@{
+    Layout = "~/Views/Shared/_TableLayout.cshtml";
+    ViewBag.Title = "分类列表";
+}
+@section TopStyles{
+    <style>
+        .subnameright {
+            text-align: right !important;
+        }
+    </style>
+
+}
+
+<button id="btn_add" type="button" class="btn btn-primary" onclick="doAdd(1)"><i class="fa fa-plus" aria-hidden="true"></i> 增加</button>
+<button id="btn_edit" type="button" class="btn btn-primary" onclick="doAdd(2)"><i class="fa fa-edit" aria-hidden="true"></i> 修改</button>
+<button id="btn_delete" type="button" class="btn btn-danger" onclick="btn_delete()"><i class="fa fa-trash" aria-hidden="true"></i> 删除</button>
+
+@section EditModal{
+    <div class="modal inmodal" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button id="dia_close" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+                </div>
+                <div id="dia_body" class="modal-body">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="commentForm">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">链接商品：</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control m-b field" name="Title" id="Title">
+
+                                    </select>
+                                </div>
+                            </div>
+                            @*<div class="form-group">
+                                    <label class="col-sm-3 control-label">E-mail：</label>
+                                    <div class="col-sm-8">
+                                        <input id="cemail" type="email" class="form-control" name="email" required="" aria-required="true">
+                                    </div>
+                                </div>*@
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">图片路径：</label>
+                                <div class="col-sm-8">
+                                    <input id="Img" type="file" class="form-control field" name="Img" style="padding:2px" onchange="refreshFile()" accept="image/*">
+                                    推荐使用宽高3:1 的图片
+                                    <img id="ImgDom" src="" style="width:340px" class="field"/>
+                                </div>
+                            </div>
+                            @*<div class="form-group">
+                                <label class="col-sm-3 control-label">排序：</label>
+                                <div class="col-sm-8">
+                                    <input id="OrderIndex" type="number" class="form-control field" required="" aria-required="true">
+                                </div>
+                            </div>*@
+                            <input id="Id" style="display:none" class="form-control field">
+                            <input id="OrgImgUrl" style="display:none" class="form-control field">
+                            @*<div class="form-group">
+                                    <label class="col-sm-3 control-label">说明：</label>
+                                    <div class="col-sm-8">
+                                        <textarea id="ccomment" name="comment" class="form-control" required="" aria-required="true"></textarea>
+                                    </div>
+                                </div>*@
+                            @*<div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-3">
+                                        <button class="btn btn-primary" type="submit">提交</button>
+                                    </div>
+                                </div>*@
+                        </form>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                    <div class="pull-left">
+                        <div id="selDiv" class="checkbox i-checks checkbox-inline pull-left">
+
+                            @*<label id="lblcopy"><input type="checkbox" class="i-checks" checked id="copynew">复制新增</label>*@
+
+                        </div>
+
+                    </div>
+
+                    <button id="dia_ok" type="button" class="btn btn-primary" onclick="doSave()">提交</button>
+                    <button id="dia_close2" type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section scripts {
+    <script type="text/javascript">
+    sortName = "Id";
+    sortOrder = "asc";
+    $tableurl = "../../WxHome/BannerTable";
+    $pageSize = 25;
+    $escape = false;
+    $pagination = true
+    $singleSelect=true
+    columns = [
+             {
+                 checkbox: true,
+                 align: 'center',
+                 valign: 'middle'
+             }, {
+                 title: '商品',
+                 field: 'Title',
+                 align: 'center',
+                 valign: 'middle',
+                 //editable: true,
+             }, {
+                 title: '轮播图路径',
+                 field: 'ImgUrl',
+                 align: 'left',
+                 valign: 'middle',
+                 cellStyle: formatImgStyle,
+                 formatter: formatImgFormatter
+                 //editable: true,
+             }
+    ]
+
+    function queryParams(params) {
+        return {
+            pageSize: params.limit,
+            pageIndex: parseInt(params.offset / params.limit) + 1,//加1，与jqgrid保持一致
+            sort: params.sort,
+            order: params.order,
+            filter: params.search
+        };
+    }
+
+
+    $(function () {
+
+        $loadTable(initTable);
+
+    });
+
+    function $onLoadSuccess(data) {
+    }
+    var options = document.getElementById("Title").options
+    function doAdd(type, dblrow) {
+        var row = getIdSelections();
+        if (dblrow)
+            row = [dblrow];
+        if (row.length == 0) {
+            if (type == 2) {
+                showTip('请选择数据！', "error");
+                return;
+            }
+        }
+        
+        $("#ImgDom")[0].src = ""
+        $("#ImgDom")[0].style.display = "none"
+        $("#Title").val("")
+        $("#Id").val("")
+        $("#OrgImgUrl").val("")
+
+        document.getElementById('Img').value = "";
+
+        var goods = AjaxPost("../../WxHome/GetGoods", {}, false);
+        options.length = 0;
+        goods.forEach(function (item, index) {
+            options.add(new Option(item.title, item.id));
+        })
+        if (type == 2) {
+            //记录这里复制
+            $("#Title").val(row[0].goodsid)
+            $("#Id").val(row[0].Id)
+            $("#ImgDom")[0].src = row[0].ImgUrl
+            $("#OrgImgUrl").val(row[0].ImgUrl)
+            $("#ImgDom")[0].style.display = "block"
+            //$("#ImgDom").attr
+            
+        }
+
+        
+        
+        $('#EditModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function $rowDoubleClick(row) {
+        doAdd(2, row)
+    }
+    function doSave() {
+        var data = GetFormData();
+        if (String.IsNullOrEmpty($("#ImgDom")[0].src) || $("#ImgDom")[0].src.endsWith("Banner")) {
+            showTip('轮播图不能为空！', "error");
+            return
+        }
+
+        var res = AjaxPost("../../WxHome/SaveBanner", data, false);
+        if (!String.IsNullOrEmpty(res)) {
+            showTip(res, "error");
+            return
+        } else {
+            showTip("保存成功", "success");
+            options.length = 0;
+            refreshTable();
+        }
+        $('#EditModal').modal('hide')
+
+    }
+    function btn_delete() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        $('#myModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+        $("#dia_title").text("轮播图删除");
+        $("#dia_info").text("轮播图被删除后不能恢复，请谨慎操作！");
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function doConfirm() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        var Id = row[0].Id;
+        var count = AjaxPost('../../WxHome/DeleteBanner', { id: Id }, false);
+        if (count == 1) {
+            showTip("删除成功", "success");
+            refreshTable();
+            $('#myModal').modal('hide')
+        }
+    }
+    function $rowClick(row) {
+
+    }
+    function $onRowEditableSave(field, row, oldValue, $el) {
+
+    }
+    function refreshFile() {
+        var data = GetFormData();
+        var res = AjaxPost("../../WxHome/SaveBannerImg", data, false);
+        $("#ImgDom")[0].src = res;
+        $("#ImgDom")[0].style.display = "block"
+    }
+
+    </script>
+}

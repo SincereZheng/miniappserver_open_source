@@ -1,0 +1,347 @@
+﻿@{
+    Layout = "~/Views/Shared/_TableLayout.cshtml";
+    ViewBag.Title = "商品列表";
+}
+@section TopStyles{
+<link href="~/Content/jquery.upload.min.css" rel="stylesheet" />
+    <style>
+        .subnameright {
+            text-align: right !important;
+        }
+    </style>
+
+}
+
+<label class="btn"> 是否上架：</label>
+<select class="m-b field" name="isdisplay" id="isdisplay" title="是否上架" style="box-shadow: 0px 1px 1px rgba(90,90,90,0.1);
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;padding-top: 3px;
+    padding-bottom: 9px;" onchange="refreshTable()">
+    <option value="2">全部</option>
+    <option value="1">是</option>
+    <option value="0">否</option>
+</select>
+<button id="btnadd" type="button" class="btn btn-primary" onclick="doAdd(1)"><i class="fa fa-plus" aria-hidden="true"></i> 增加</button>
+<button id="btnedit" type="button" class="btn btn-primary" onclick="doAdd(2)"><i class="fa fa-edit" aria-hidden="true"></i> 修改</button>
+<button id="btnup" type="button" class="btn btn-primary" onclick="doUpOrDown(1)"><i class="fa fa-arrow-up" aria-hidden="true"></i> 上架</button>
+<button id="btndown" type="button" class="btn btn-primary" onclick="doUpOrDown(0)"><i class="fa fa-arrow-down" aria-hidden="true"></i> 下架</button>
+<button id="btncontent" type="button" class="btn btn-primary" onclick="doEditContent()"><i class="fa fa-edit" aria-hidden="true"></i> 编辑简介</button>
+<button id="btn_delete" type="button" class="btn btn-danger" onclick="btn_delete()"><i class="fa fa-trash" aria-hidden="true"></i> 删除</button>
+
+@section EditModal{
+    <div class="modal inmodal" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width:845px">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button id="dia_close" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+                </div>
+                <div id="dia_body" class="modal-body">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="commentForm">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">商品名称：</label>
+                                <div class="col-sm-8">
+                                    <input id="Title" type="text" class="form-control field" name="Title">
+                                </div>
+                            </div>
+                            @*<div class="form-group">
+                                    <label class="col-sm-3 control-label">E-mail：</label>
+                                    <div class="col-sm-8">
+                                        <input id="cemail" type="email" class="form-control" name="email" required="" aria-required="true">
+                                    </div>
+                                </div>*@
+                            
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">排序：</label>
+                                <div class="col-sm-8">
+                                    <input id="iOrder" type="number" class="form-control field" required="" aria-required="true">
+                                    <span class="help-block m-b-none">排序越小越靠前</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" for="bDisplay">是否上架：</label>
+                                <input id="bDisplay" type="checkbox" class="field col-sm-3" name="bDisplay" style="height:20px">
+
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" for="bDisplay">宣传画廊：</label>
+                                <div class="col-sm-8 upload-box1"></div>
+                            </div>
+                            
+                            @*<div class="form-group">
+                                    <label class="col-sm-3 control-label">排序：</label>
+                                    <div class="col-sm-8">
+                                        <input id="OrderIndex" type="number" class="form-control field" required="" aria-required="true">
+                                    </div>
+                                </div>*@
+                            <input id="Id" style="display:none" class="form-control field">
+                            <select id="imageurls" style="display:none">
+                            </select>
+                            @*<div class="form-group">
+                                    <label class="col-sm-3 control-label">说明：</label>
+                                    <div class="col-sm-8">
+                                        <textarea id="ccomment" name="comment" class="form-control" required="" aria-required="true"></textarea>
+                                    </div>
+                                </div>*@
+                            @*<div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-3">
+                                        <button class="btn btn-primary" type="submit">提交</button>
+                                    </div>
+                                </div>*@
+                        </form>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                    <div class="pull-left">
+                        <div id="selDiv" class="checkbox i-checks checkbox-inline pull-left">
+
+                            @*<label id="lblcopy"><input type="checkbox" class="i-checks" checked id="copynew">复制新增</label>*@
+
+                        </div>
+
+                    </div>
+
+                    <button id="dia_ok" type="button" class="btn btn-primary" onclick="doSave()">提交</button>
+                    <button id="dia_close2" type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section scripts {
+<script src="~/Scripts/jquery.upload.min.js"></script>
+    <script type="text/javascript">
+        sortName = "iOrder";
+    sortOrder = "asc";
+    $tableurl = "../../Product/GoodsListTable";
+    $pageSize = 25;
+    $escape = false;
+    $pagination = true
+    $singleSelect=true
+    columns = [
+             {
+                 checkbox: true,
+                 align: 'center',
+                 valign: 'middle'
+             }, {
+                 title: '名称',
+                 field: 'Title',
+                 align: 'center',
+                 valign: 'middle',
+                 //editable: true,
+             }, {
+                 title: '是否上架',
+                 field: 'bDisplay',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable:true
+                 //editable: true,
+             }, {
+                 title: '上架时间',
+                 field: 'dDisplayTime',
+                 align: 'left',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }, {
+                 title: '添加时间',
+                 field: 'dAddTime',
+                 align: 'left',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }, {
+                 title: '排序',
+                 field: 'iOrder',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }
+    ]
+
+    function queryParams(params) {
+        return {
+            pageSize: params.limit,
+            pageIndex: parseInt(params.offset / params.limit) + 1,//加1，与jqgrid保持一致
+            sort: params.sort,
+            order: params.order,
+            filter: params.search,
+            isdisplay: $("#isdisplay").val()
+        };
+    }
+
+
+    $(function () {
+
+        $loadTable(initTable);
+    });
+
+    function $onLoadSuccess(data) {
+    }
+    var options = document.getElementById("Title").options
+    function doAdd(type, dblrow) {
+        var row = getIdSelections();
+        if (dblrow)
+            row = [dblrow];
+        if (row.length == 0) {
+            if (type == 2) {
+                showTip('请选择数据！', "error");
+                return;
+            }
+        }
+
+       
+        $("#Title").val("")
+        $("#iOrder").val("")
+        $("#Id").val("")
+        $("#bDisplay")[0].checked = true;
+        var form = $(".ggy-section-box")[0];
+        $(".upload-box1").ajaxImageUpload("destory");
+        if (type == 2) {
+            //记录这里复制
+            $("#Title").val(row[0].Title)
+            $("#iOrder").val(row[0].iOrder)
+            $("#Id").val(row[0].Id)
+            $("#bDisplay")[0].checked = row[0].bDisplay == "是"
+            var srcs = AjaxPost("../../Product/GetGoodsImageSrc", { gid: row[0].Id }, false);
+
+            if (srcs && srcs.length > 0) {
+                var urls = [];
+                srcs.forEach(function (u, i) {
+                    urls.push(u.imgurl);
+                })
+                $(".upload-box1").ajaxImageUpload({
+                    fileInput: 'Images', //上传按钮名，即input[type=file]的name值
+                    postUrl: '../../WxHome/UploadFiles', //上传的服务器地址
+                    imageUrl: urls,
+                    allowZoom: false,
+                    appendMethod:'after',
+                    success: function (result, e) {
+                    }
+                });
+            }
+        } else {
+            var orderindex = AjaxPost("../../Product/GetGoodsOrderIndex", {}, false)
+            $("#iOrder").val(orderindex)
+
+            $(".upload-box1").ajaxImageUpload({
+                fileInput: 'Images', //上传按钮名，即input[type=file]的name值
+                postUrl: '../../WxHome/UploadFiles', //上传的服务器地址
+                imageUrl:[],
+                allowZoom: false,
+                appendMethod: 'after',
+                success: function (result, e) {
+                }
+            });
+        }
+
+        $('#EditModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function $rowDoubleClick(row) {
+        //doAdd(2, row)
+        doEditContent(row)
+    }
+    function getImages() {
+        var data = [];
+        $(".ggy-image-show").each(function (e, t) {
+            data.push(t.getAttribute("src"))
+        })
+        return data.join(',');
+    }
+    function doSave() {
+        var data = GetFormData();
+        data.Images = getImages();
+        if (String.IsNullOrEmpty(data.Title)) {
+            showTip('商品名称不能为空！', "error");
+            return
+        }
+
+        var res = AjaxPost("../../Product/Edit", data, false);
+        if (!String.IsNullOrEmpty(res)) {
+            showTip(res, "error");
+            return
+        } else {
+            showTip("保存成功", "success");
+            refreshTable();
+        }
+        $('#EditModal').modal('hide')
+
+    }
+    function btn_delete() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        $('#myModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+        $("#dia_title").text("商品删除");
+        $("#dia_info").text("商品被删除后不能恢复。商品被删除后将删除商品的价格信息。\n 请谨慎操作！");
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function doConfirm() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        var Id = row[0].Id;
+        var str = AjaxPost('../../Product/DeleteGoods', { id: Id }, false);
+        if (String.IsNullOrEmpty(str)) {
+            showTip("删除成功", "success");
+            refreshTable();
+            $('#myModal').modal('hide')
+        }else
+            showTip(str, "error");
+    }
+    function doUpOrDown(type) {
+        var rows = getIdSelections();
+        if (rows.length == 0) {
+            showTip('请选择数据！', "error");
+            return;
+        }
+        var data = {};
+        data.display = type;
+        data.Id = rows[0].Id;
+        var res = AjaxPost("../../Product/UpDownGoods", data, false);
+        if (res == 1) {
+            showTip("操作成功", "success");
+            refreshTable();
+        }
+    }
+    function $rowClick(row) {
+
+    }
+    function $onRowEditableSave(field, row, oldValue, $el) {
+
+    }
+    function doEditContent(row) {
+        var rows = getIdSelections();
+        if (row)
+            rows[0] = row
+        if (rows.length == 0) {
+            showTip('请选择要编辑的商品！', "error");
+            return;
+        }
+        window.location.href = "../Product/Content?gid=" + rows[0].Id;
+    }
+    </script>
+}

@@ -1,0 +1,353 @@
+﻿@{
+    Layout = "~/Views/Shared/_GlobalArgLayout.cshtml";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="~/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/css/animate.css" rel="stylesheet" />
+    <link href="~/css/style.css" rel="stylesheet" />
+        @*@Styles.Render("~/bundles/hpluscss")*@
+</head>
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+    <div id="wrapper">
+        <!--左侧导航开始-->
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="nav-close">
+                <i class="fa fa-times-circle"></i>
+            </div>
+            <div class="sidebar-collapse">
+                <ul class="nav" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element">
+                            @*<span><img alt="image" class="img-circle" src="img/profile_small.jpg" /></span>*@
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <span class="clear">
+                                    <span class="text-muted text-xs block">超级管理员<b class="caret"></b></span>
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                @*<li>
+                                    <a class="J_menuItem" href="form_avatar.html">修改头像</a>
+                                </li>
+                                <li>
+                                    <a class="J_menuItem" href="profile.html">个人资料</a>
+                                </li>
+                                <li>
+                                    <a class="J_menuItem" href="contacts.html">联系我们</a>
+                                </li>
+                                <li>
+                                    <a class="J_menuItem" href="mailbox.html">信箱</a>
+                                </li>*@
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="Logout">安全退出</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="logo-element">
+                            H+
+                        </div>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-bars"></i>
+                            <span class="nav-label">商品管理</span>
+                            <span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-second-level">
+                            @*<li>
+                                <a class="J_menuItem" href="../Product/List?type=goods" data-index="0">商品管理</a>
+                            </li>*@
+                            <li>
+                                <a class="J_menuItem" href="../Product/GoodsList" data-index="0">商品管理</a>
+                            </li>
+                            <!-- 已集成到 商品管理
+                            <li>
+                                <a class="J_menuItem" href="../Product/ImageList" data-index="0">商品轮播图</a>
+                            </li>
+                                -->
+                            <li>
+                                <a class="J_menuItem" href="../Product/SkuList" data-index="0">价格管理</a>
+                            </li>
+
+                        </ul>
+
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-calendar"></i>
+                            <span class="nav-label">订单管理</span>
+                            <span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-second-level">
+
+
+                            <li>
+                                <a class="J_menuItem" href="../Order/OrderList">订单列表</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="../Product/KuCunDetail">库存明细表</a>
+                            </li>
+
+                        </ul>
+
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-home"></i>
+                            <span class="nav-label">系统设置</span>
+                            <span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-second-level">
+                            
+                           
+                            <li>
+                                <a class="J_menuItem" href="../Product/Category">分类管理</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="../WxHome/Banner">首页轮播图</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="../WxHome/Coupon">优惠券管理</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="" onclick="doBusinessConfig()">业务配置</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="../WxHome/HelpDoc">小程序帮助</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="../WxHome/UserList">用户管理</a>
+                            </li>
+                        </ul>
+
+                    </li>
+                    @*<li>
+                        <a href="#">
+                            <i class="fa fa-home"></i>
+                            <span class="nav-label">插件管理</span>
+                            <span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a class="J_menuItem" href="../Plugin/PluginList">插件列表</a>
+                            </li>
+                        </ul>
+
+                    </li>*@
+                    
+                </ul>
+            </div>
+        </nav>
+        <!--左侧导航结束-->
+        <!--右侧部分开始-->
+        
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+
+                    </div>
+                   
+                </nav>
+            </div>
+            <div class="row content-tabs">
+                <button class="roll-nav roll-left J_tabLeft">
+                    <i class="fa fa-backward"></i>
+                </button>
+                <nav class="page-tabs J_menuTabs">
+                    <div class="page-tabs-content">
+                        <a href="javascript:;" class="active J_menuTab" data-id="Board">首页</a>
+                    </div>
+                </nav>
+                <button class="roll-nav roll-right J_tabRight">
+                    <i class="fa fa-forward"></i>
+                </button>
+                <div class="btn-group roll-nav roll-right">
+                    <button class="dropdown J_tabClose" data-toggle="dropdown">
+                        关闭操作<span class="caret"></span>
+
+                    </button>
+                    <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                        <li class="J_tabShowActive">
+                            <a>定位当前选项卡</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="J_tabCloseAll">
+                            <a>关闭全部选项卡</a>
+                        </li>
+                        <li class="J_tabCloseOther">
+                            <a>关闭其他选项卡</a>
+                        </li>
+                    </ul>
+                </div>
+                <a href="Logout" class="roll-nav roll-right J_tabExit"><i class="fa fa fa-sign-out"></i> 退出</a>
+            </div>
+            <div class="row J_mainContent" id="content-main">
+                <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="../Home/Board" frameborder="0" data-id="Board" seamless></iframe>
+            </div>
+
+        </div>
+        
+        <!--右侧部分结束-->
+        <!--右侧边栏开始-->
+       
+        <!--右侧边栏结束-->
+        <!--mini聊天窗口开始-->
+       
+        <!--mini聊天窗口结束-->
+    </div>
+    <!--系统配置-->
+    <div class="modal inmodal" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header" style="padding:15px">
+                    <button id="dia_close" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+                </div>
+                <div id="dia_body" class="modal-body">
+                    <div class="tabs-container">
+                        <ul class="nav nav-tabs">
+                            <li class="active">
+                                <a data-toggle="tab" href="#tab-1" aria-expanded="true"> 业务</a>
+                            </li>
+                            <li class="">
+                                <a data-toggle="tab" href="#tab-2" aria-expanded="false">系统信息</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tab-1" class="tab-pane active">
+                                <div class="panel-body">
+                                    <div class="ibox-content">
+                                        <form class="form-horizontal m-t" id="commentForm">
+                                            <div class="form-group">
+                                                <input id="AllowNegativeKucun" type="checkbox" class="field col-sm-3" name="AllowNegativeKucun" style="height:16px;text-align:right" onchange="doAllowNegativeKucunChange()">
+
+                                                <label style="text-align:left" class="col-sm-9 control-label" for="AllowNegativeKucun">提交订单时允许负库存</label>
+
+                                                <input id="AllowMultiShareCoupon" type="checkbox" class="field col-sm-3" name="AllowMultiShareCoupon" style="height:16px;text-align:right" onchange="doAllowMultiShareCoupon()">
+
+                                                <label style="text-align:left" class="col-sm-9 control-label" for="AllowMultiShareCoupon">允许非管理员转发领取优惠券</label>
+                                            </div>
+
+                                            <input id="Id" style="display:none" class="form-control field">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tab-2" class="tab-pane">
+                                <div class="ibox-content">
+                                    <form class="form-horizontal m-t" id="commentForm">
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">程序名称：</label>
+                                            <div class="col-sm-8">
+                                                <input id="Name" name="name" minlength="2" maxlength="20" type="text" class="form-control field" required="" aria-required="true">
+                                            </div>
+                                        </div>
+                                        
+                                    </form>
+                                    <button id="dia_ok" type="button" class="btn btn-primary" onclick="doSaveExeInfo()" style="margin-left:450px">提交</button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    
+
+                </div>
+                <div class="modal-footer">
+
+                    @*<div class="pull-left">
+                        <div id="selDiv" class="checkbox i-checks checkbox-inline pull-left">
+
+                            <label id="lblcopy"><input type="checkbox" class="i-checks" checked id="copynew">复制新增</label>
+
+                        </div>
+
+                    </div>
+
+                    <button id="dia_ok" type="button" class="btn btn-primary" onclick="doSave()">提交</button>
+                    <button id="dia_close2" type="button" class="btn btn-white" data-dismiss="modal">关闭</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 全局js -->
+
+    @Scripts.Render("~/bundles/jquerytwo")
+    @Scripts.Render("~/bundles/base")
+    @Scripts.Render("~/bundles/hplusjs")
+    <script>
+        function closeCurrentPage(){
+            $('.page-tabs-content').children("[data-id]").not(":first").each(function () {
+                if ($(this).hasClass("active")) {
+                    $('.J_iframe[data-id="' + $(this).data('id') + '"]').remove();
+                    $(this).remove();
+                }
+            });
+            var count = $('.page-tabs-content').children("[data-id]").length;
+            $('.page-tabs-content').children("[data-id]")[count - 1].click()
+        }
+        function openTab(dataUrl, menuName) {
+            var str = '<a href="javascript:;" class="active J_menuTab" data-id="' + dataUrl + '">' + menuName + ' <i class="fa fa-times-circle"></i></a>';
+            $('.J_menuTab').removeClass('active');
+
+            // 添加选项卡对应的iframe
+            var str1 = '<iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="' + dataUrl + '" frameborder="0" data-id="' + dataUrl + '" seamless></iframe>';
+            $('.J_mainContent').find('iframe.J_iframe').hide().parents('.J_mainContent').append(str1);
+
+            //显示loading提示
+            //            var loading = layer.load();
+            //
+            //            $('.J_mainContent iframe:visible').load(function () {
+            //                //iframe加载完成后隐藏loading提示
+            //                layer.close(loading);
+            //            });
+            // 添加选项卡
+            $('.J_menuTabs .page-tabs-content').append(str);
+            $('.J_menuTabs .page-tabs-content')[0].click();
+        }
+
+        function doBusinessConfig() {
+            var res = AjaxPost("/Home/GetServerConfig", {}, false);
+            res.forEach(function (item, index) {
+                if(item.subkey == "allownegativekucun")
+                    document.getElementById("AllowNegativeKucun").checked = item.subvalue == 1
+                if (item.subkey == "allowmultisharecoupon")
+                    document.getElementById("AllowMultiShareCoupon").checked = item.subvalue == 1
+                if(item.subkey=="loginsystemname")
+                    document.getElementById("Name").value = item.subvalue
+            })
+            $('#EditModal').modal({ backdrop: 'static', keyboard: false });
+
+            $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+
+            $("#dia_close").show();
+            //$("#dia_close2").show().text("关闭");
+            //$("#dia_ok").show().text("确定");
+        }
+        function doAllowNegativeKucunChange() {
+            var value = document.getElementById("AllowNegativeKucun").checked ? 1 : 0;
+            var res = AjaxPost("/Home/UpdateAllowNegativeKucun", { subvalue: value }, false);
+        }
+        function doAllowMultiShareCoupon() {
+            var value = document.getElementById("AllowMultiShareCoupon").checked ? 1 : 0;
+            var res = AjaxPost("/Home/UpdateAllowMultiShareCoupon", { subvalue: value }, false);
+        }
+        function doSaveExeInfo() {
+            var data = GetFormData();
+            var res = AjaxPost("/Home/SaveExeInfo", data, false);
+            if (res == 1)
+                alert('保存成功');
+        }
+    </script>
+</body>
+
+</html>

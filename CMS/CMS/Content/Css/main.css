@@ -1,0 +1,49 @@
+body{font-family: Helvetica,"Microsoft Yahei", Arial, sans-serif;font-size:14px;}
+footer{margin-top:100px;width: 100%;padding-top:10px;background-color:#dde4ec;}
+footer .panel-heading{cursor: pointer;background-color:#dde4ec!important;font-size: 16px;font-weight: 700;}
+footer .panel{background-color:#dde4ec;}
+footer .panel a{color:#4a4a4a;height: 30px;line-height: 40px;}
+
+label{font-weight: normal;}
+b{font-weight: normal}
+.panel{border:0px solid #ccc;box-shadow:none;}
+a:hover, a:focus{text-decoration:none;}
+input[type="button"]:hover{background-color:#1b86ff;color:#fff;}
+input[type="checkbox"]{margin:0px;}
+section{margin:0px;padding:0px;}
+.font-700{font-weight: 700; color: #333;}
+.font{font-size:25px;}
+#screen{width: 100%;height: 100%;background-color:#f2f2f2;position:absolute;z-index: 10000;top:0px;display: none;}
+.margin-t{margin-top: 50px;}
+.white-space{white-space: nowrap;}
+.display-none{display: none;}
+.block{display: block;}
+.absolute{position: absolute;}
+.z-index{z-index: 10001;}
+.hidden-sm .list-group-item{background-color:#f2f2f2;margin:15px 50px;border-bottom:1px solid #ccc;font-size: 16px;color:#666;font-weight: 700;}
+.hidden-sm .list-group-item:first-child{border-top-right-radius:0px; border-top-left-radius:0px;border-top:none;}
+.hidden-sm .list-group-item:last-child{border-bottom-right-radius:0px; border-bottom-left-radius:0px;border-bottom:none;}
+.hidden-sm .list-group-item:hover{background-color:#f2f2f2;color:#999;}
+.panel-body{padding:0px;}
+.pointer{cursor: pointer;}
+.opacity-0{opacity: 0;alpha(opacity=0)}
+.underline{border-bottom: 1px solid #ccc;padding-bottom: 6px;}
+.inline-block{display: inline-block;}
+.padding-50{padding:10px 25px;}
+.clear{clear: both;}
+.navbar{background-color:#fff;}
+.navbar .row .hidden-xs{height: 70px;line-height: 68px;}
+.navbar .row a{color: #000000;font-size: 16px;font-weight: 500;display: block;text-align: center;height: 71px;}
+.nav-active{border-bottom: 3px solid #349aff;}
+.blue{color:#3399ff;}
+.orange{color:#ee6d0f;}
+.padding-lr{padding:0px 8px;}
+.relative{position: relative;}
+.letter-spacing{letter-spacing: 1px;}
+.gray{color:#333;}
+
+@media screen and (max-width:768px){
+	.hidden-sm .list-group-item{font-size:14px;}
+}
+
+

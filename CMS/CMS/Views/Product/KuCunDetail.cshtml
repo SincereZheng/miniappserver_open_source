@@ -1,0 +1,226 @@
+﻿@{
+    Layout = "~/Views/Shared/_TableLayout.cshtml";
+    ViewBag.Title = "库存明细表";
+}
+@section TopStyles{
+    <link href="~/Content/Css/plugins/chosen/chosen.css" rel="stylesheet" />
+    <style>
+        .subnameright {
+            text-align: right !important;
+        }
+        tr{
+            height:33px !important;
+        }
+        #table{
+            width:1000px !important;
+            border:1px #dddddd solid
+        }
+        th{
+            border:1px #dddddd solid
+        }
+        td {
+            max-width: 220px;
+            word-wrap: break-word;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+            td:hover {
+                white-space: normal;
+                overflow: auto;
+            }
+    </style>
+
+}
+
+<button id="btnadd" type="button" class="btn btn-primary" onclick="doAdd(1)"><i class="fa fa-search" aria-hidden="true"></i> 查询</button>
+
+@section EditModal{
+    <div class="modal inmodal" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button id="dia_close" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+                </div>
+                <div id="dia_body" class="modal-body">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="commentForm">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">时间：</label>
+                                <div class="col-sm-8">
+                                    <input id="DateStart" name="DateStart" value="@DateTime.Now.Year-01-01" type="date" class="form-control field" required="" aria-required="true">
+                                    <input id="DeteEnd" name="DeteEnd" value="@DateTime.Now.Year-12-31"  type="date" class="form-control field" required="" aria-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">商品：</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control m-b field chosenc" name="GoodsId" id="GoodsId" data-placeholder="选择商品"></select>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                    <div class="pull-left">
+                        <div id="selDiv" class="checkbox i-checks checkbox-inline pull-left">
+
+
+                        </div>
+
+                    </div>
+
+                    <button id="dia_ok" type="button" class="btn btn-primary" onclick="doSave()">确定</button>
+                    <button id="dia_close2" type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section scripts {
+    <script src="~/Scripts/plugins/chosen/chosen.jquery.js"></script>
+    <script type="text/javascript">
+    sortName = "Id";
+    sortOrder = "asc";
+    $tableurl = "../../Product/KuCunDetailTable";
+    $pageSize = 25;
+    $escape = false;
+    $pagination = true
+    $singleSelect = true
+    $showToggle = false
+    $search = false
+    $striped = false
+    columns = [
+             {
+                 title: '商品名称',
+                 field: 'GoodsName',
+                 align: 'center',
+                 valign: 'middle',
+                 width:'300px'
+             }, {
+                 title: '属性名称',
+                 field: 'SkuName',
+                 align: 'center',
+                 valign: 'middle'
+             }, {
+                 title: '订单号',
+                 field: 'OrderNo',
+                 align: 'left',
+                 valign: 'middle'
+                 //editable: true,
+             }, {
+                 title: '时间',
+                 field: 'dAddTime',
+                 align: 'left',
+                 valign: 'middle'
+                 //editable: true,
+             }, {
+                 title: '订单数量',
+                 field: 'Total',
+                 align: 'center',
+                 valign: 'middle',
+                 formatter: function (value, row, index) {
+                     if ($numberUtils.isZero(value))
+                         return "";
+                     else
+                         return value;
+                 }
+                 //editable: true,
+             }, {
+                 title: '余量',
+                 field: 'Balance',
+                 align: 'center',
+                 valign: 'middle',
+                 formatter: function (value, row, index) {
+                     if ($numberUtils.isZero(value))
+                         return "";
+                     else
+                         return value;
+                 }
+                 //editable: true,
+             }
+    ]
+
+    //function queryParams(params) {
+    //    return {
+    //        pageSize: params.limit,
+    //        pageIndex: parseInt(params.offset / params.limit) + 1,//加1，与jqgrid保持一致
+    //        sort: params.sort,
+    //        order: params.order,
+    //        filter: params.search
+    //    };
+    //}
+    function queryParams(params) {
+        return {
+            pageSize: document.getElementsByClassName("page-size")[0].innerText,
+            pageIndex: parseInt(params.offset / $pageSize) + 1,//加1，与jqgrid保持一致
+            sort: params.sort,
+            order: params.order,
+            filter: params.search,
+            DateStart: $("#DateStart").val(),
+            DeteEnd: $("#DeteEnd").val(),
+            GoodsId: $("#GoodsId").val()
+        };
+    }
+
+    $(function () {
+
+        $loadTable(initTable);
+
+
+    });
+
+    var parid = 0;
+    function $onLoadSuccess(data) {
+    }
+    
+    function doAdd(type, dblrow) {
+        refreshGoodsSelect();
+        $('#EditModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function refreshGoodsSelect() {
+        var options = document.getElementById("GoodsId").options
+        var goods = AjaxPost("../../WxHome/GetGoods", {}, false);
+        var gid = $("#GoodsId").val();
+        options.length = 0;
+        options.add(new Option("全部", 0));
+        goods.forEach(function (item, index) {
+            var option = new Option(item.title, item.id);
+            options.add(option);
+            if (item.id == gid)
+                option.selected = true;
+        })
+    }
+    function $rowDoubleClick(row) {
+        if ($numberUtils.isZero(row.OrderId))
+            return
+        parent.openTab('../Order/OrderDetail/Detail/' + row.OrderId, '订单明细')
+    }
+
+    function doSave() {
+        $('#EditModal').modal('hide')
+        refreshTable();
+    }
+
+    function $rowClick(row) {
+
+    }
+    function $onRowEditableSave(field, row, oldValue, $el) {
+
+    }
+
+    </script>
+}

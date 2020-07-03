@@ -1,0 +1,305 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommonLibrary</name>
+    </assembly>
+    <members>
+        <member name="M:CommonLibrary.AESHelper.EncryptByAES(System.String,System.String)">
+            <summary>  
+            AES加密算法  
+            </summary>  
+            <param name="input">明文字符串</param>  
+            <param name="key">密钥</param>  
+            <returns>字符串</returns>  
+        </member>
+        <member name="M:CommonLibrary.AESHelper.DecryptByAES(System.String,System.String)">
+            <summary>  
+            AES解密  
+            </summary>  
+            <param name="input">密文字节数组</param>  
+            <param name="key">密钥</param>  
+            <returns>返回解密后的字符串</returns>  
+        </member>
+        <member name="T:CommonLibrary.ClientHelper">
+            <summary>
+            用于Web程序里 获取客户端信息
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.ClientHelper.GetWebClientIp">
+            <summary>
+            获取web客户端ip
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLibrary.CMDHelper">
+            <summary>
+            cmd控制台命令
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.CMDHelper.ProcessCMD(System.String,System.Boolean)">
+            <summary>
+            执行cmd命令
+            </summary>
+            <param name="acmd"></param>
+            <param name="waitforexit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.DbHelper.BeginTransaction">
+            <summary>
+            启动事务。
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.DbHelper.#ctor">
+            <summary>
+            用完之后请释放
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.DbHelper.#ctor(System.String)">
+            <summary>
+            用完之后请释放
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.DbHelper.ExecuteSingleSelectValue(System.String)">
+            <summary>
+            执行查询，并返回查询所返回的结果集中第一行的第一列。忽略其他列或行。同 GetValueFromSql
+            </summary>
+            <param name="sql"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.DbHelper.CreatNewClassBydt(System.Data.DataTable)">
+            <summary>
+            使用反射 动态创建类，将T的列名动态添加为该类的属性，并给属性赋值
+            该方法由于要动态创建类，性能比较低（注意只是将T的第一行转换为动态实体类）
+            </summary>
+            <param name="dt"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.DbHelper.GetValueFromSql(System.String)">
+            <summary>
+            同 ExecuteSingleSelectValue。一般用于判断是否存在 select 1 or select 0
+            </summary>
+            <param name="sql"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLibrary.ExtendFuc">
+            <summary>
+            扩展类
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.ExtendFuc.ToDataTable(System.String)">
+            <summary>
+            Json 字符串 转换为 DataTable数据集合
+            </summary>
+            <param name="json"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.ExtendFuc.ToJson(System.Data.DataTable)">
+            <summary>
+            DataTable 对象 转换为Json 字符串
+            </summary>
+            <param name="dt"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.ExtendFuc.ToQueryNameValueString(CommonLibrary.HashObject)">
+            <summary>
+            该方法内值需要保证为基本类型（int，string，double，float，bool等），
+            </summary>
+            <param name="para"></param>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:CommonLibrary.HardWareHelper" -->
+        <member name="M:CommonLibrary.HardWareHelper.GetCpuName">
+            <summary>
+            Win32_Processor 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.HardWareHelper.GetWin32_DisplayConfiguration">
+            <summary>
+            显卡
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.HardWareHelper.GetWin32_PhysicalMemory">
+            <summary>
+            内存
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.HardWareHelper.GetWin32_OperatingSystem">
+            <summary>
+            操作系统
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.HardWareHelper.GetComputerName">
+            <summary>
+            得到机器名
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.HardWareHelper.GetUserName">
+            <summary>
+            得到当前操作系统登录用户
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CommonLibrary.IniFileHelper">
+            <summary>
+            ini配置文件帮助类 适用于没有数据库的情况
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.IniFileHelper.IniWriteval_r(System.String,System.String,System.String,System.String)">
+            <summary>
+            写入INI文件
+            </summary>
+            <param name="AIniFilePath">文件路径</param>
+            <param name="Section">项目名称(如 [TypeName] )</param>
+            <param name="Key">键</param>
+            <param name="Val">值</param>
+        </member>
+        <member name="M:CommonLibrary.IniFileHelper.IniReadVal(System.String,System.String,System.String,System.String)">
+            <summary>
+            读出INI文件
+            </summary>
+            <param name="AIniFilePath">文件路径</param>
+            <param name="Section">项目名称(如 [TypeName] )</param>
+            <param name="Key">键</param>
+            <param name="ADefault">默认值</param>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.getRange(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            起始单元格和终止单元格围成的区域
+            </summary>
+            <param name="x1"></param>
+            <param name="y1"></param>
+            <param name="x2"></param>
+            <param name="y2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.OpenExcelFile(System.String)">
+            <summary>
+            打开文件
+            </summary>
+            <param name="filename"></param>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.OpenExcelFile(System.IO.Stream)">
+            <summary>
+            打开文件
+            </summary>
+            <param name="fileStream"></param>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.OpenExcelFile(System.String,System.Int32)">
+            <summary>
+            打开文件
+            </summary>
+            <param name="filename"></param>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.OpenExcelFile(System.IO.Stream,System.Int32)">
+            <summary>
+            打开文件
+            </summary>
+            <param name="fileStream"></param>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.OpenExcelFile(System.String,System.String)">
+            <summary>
+            打开文件
+            </summary>
+            <param name="filename"></param>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.OpenExcelFile(System.IO.Stream,System.String)">
+            <summary>
+            打开文件
+            </summary>
+            <param name="filename"></param>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.GetExcelValue2(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            得到Excel某个区域的值，针对数字
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.GetExcelValue(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            得到Excel某个区域的值
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.ToTables(System.Collections.Generic.List{CommonLibrary.HashObject},System.Boolean)">
+            <summary>
+            转DataTable。默认第一行是表格列名称。当有值占有多个格子时，只取RowIndex和ColumnIndex最新的那个，其他全为空
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.FirstSheetToTable">
+            <summary>
+            将第一个sheet转成table
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.FirstSheetToTable(CommonLibrary.HashObject)">
+            <summary>
+            将第一个sheet按照指定表头转换成table
+            </summary>
+            <param name="title">表头信息。字典里key的值要与sheet内第一行的值一致</param>
+            <returns></returns>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.setValue(System.Int32,System.Int32,System.String,System.String)">
+            <summary>
+            单元格赋值，含对齐方式
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.setValue(System.Int32,System.Int32,System.String)">
+            <summary>
+            单元格赋值 不含设置格式
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.setValueBold(System.Int32,System.Int32,System.String)">
+            <summary>
+            单元格赋值 加初 不含设置格式 //add by kz 20130604
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.setValue(System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Drawing.Color)">
+            <summary>
+            单元格赋值
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.CreateExceFile">
+            <summary>
+            创建空模板
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.SaveAs(System.String)">
+            <summary>
+            另存为
+            </summary>
+            <param name="FileName">文件路径</param>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.ReleaseExcel">
+            <summary>
+            释放创建的对象
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.NumberFormat(System.Int32,System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            格式化输出
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.MSExcel.Formula(System.Int32,System.Int32,System.Int32,System.Int32,System.Object[0:,0:])">
+            <summary>
+            Excel区域填充
+            </summary>
+        </member>
+        <member name="T:CommonLibrary.SNFormatHelper">
+            <summary>
+            单据编号处理
+            </summary>
+        </member>
+        <member name="M:CommonLibrary.SNFormatHelper.DoFormat(System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="format">"单据前缀-yyyy-MM-dd-[0000]"</param>
+            <param name="sn">56</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

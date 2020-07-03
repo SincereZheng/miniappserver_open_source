@@ -1,0 +1,80 @@
+﻿@model CommonLibrary.HashObject
+@{
+    Layout = null;
+}
+
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>@Html.Raw(Model.GetValue<string>("LoginTitle", ""))</title>
+
+    <link rel="shortcut icon" href="@Html.Raw(Model.GetValue<string>("LoginIconUrl", ""))">
+    <link href="~/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="~/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <link href="~/css/animate.css" rel="stylesheet">
+    <link href="~/css/style.css?v=4.1.0" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen  animated fadeInDown">
+        <div>
+            <div>
+
+                <h1 class="logo-name">@Html.Raw(Model.GetValue<string>("LoginName", ""))</h1>
+
+            </div>
+            <h3>欢迎使用 @Html.Raw(Model.GetValue<string>("LoginSystemName", ""))</h3>
+
+            <form class="m-t" role="form">
+                <div class="form-group">
+                    <input type="text" id="UserCode" class="form-control field" placeholder="用户名" required="">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="PassWord" class="form-control field" placeholder="密码" required="">
+                </div>
+                <button type="button" onclick="doLogin()" class="btn btn-primary block full-width m-b">登 录</button>
+
+
+                <p class="text-muted text-center">
+                    <a href="login.html#"><small>忘记密码了？</small></a> | <a href="register.html">注册一个新账号</a>
+                </p>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="~/js/jquery.min.js?v=2.1.4"></script>
+    <script src="~/js/bootstrap.min.js?v=3.3.6"></script>
+    <script>
+       function getvirtualname(){
+            var virtualname = '@ViewData["virtualname"].ToString()';
+            return virtualname;
+        }
+    </script>
+    @Scripts.Render("~/bundles/base")
+    <!--统计代码，可删除-->
+    <script>
+        function doLogin() {
+            var data = GetFormData();
+            var result = AjaxPost("DoLogin", data, false,true);
+            if (result.length == 0)
+                window.location.href = "../Home/Index";
+            else
+                alert(result[0].errmsg);
+        }
+    </script>
+</body>
+
+</html>

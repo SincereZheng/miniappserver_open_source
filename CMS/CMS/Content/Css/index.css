@@ -1,0 +1,41 @@
+
+.list-group-item{border:0px solid #ccc;}
+h3{font-size: 18px;}
+.content p{color: #4A4A4A; line-height: 2em; font-size: 16px;}
+
+.index-title{margin:90px 0px;}
+.index-p-long{height: 180px;margin-top:50px;background-color:#EDF0F5;color:#333;}
+.index-p-long1{height: 180px;margin-top:50px;background-color:#EDF0F5;color:#333;}
+.index-p-long2{height: 180px;margin-top:50px;background-color:#EDF0F5;color:#333;}
+.index-p-long3{height: 180px;margin-top:50px;background-color:#EDF0F5;color:#333;}
+.index-p-long4{height: 180px;margin-top:50px;background-color:#EDF0F5;color:#333;}
+
+
+.index-p-long:before{content: "";position: absolute;width: 0;height: 0;border:30px solid transparent;border-bottom-color: #EDF0F5;top:-110px;left:155px;}
+.index-p-long1:before{content: "";position: absolute;width: 0;height: 0;border:30px solid transparent;border-bottom-color: #EDF0F5;top:-110px;left:351px;}
+.index-p-long2:before{content: "";position: absolute;width: 0;height: 0;border:30px solid transparent;border-bottom-color: #EDF0F5;top:-110px;left:543px;}
+.index-p-long3:before{content: "";position: absolute;width: 0;height: 0;border:30px solid transparent;border-bottom-color: #EDF0F5;top:-110px;left:726px;}
+.index-p-long4:before{content: "";position: absolute;width: 0;height: 0;border:30px solid transparent;border-bottom-color: #EDF0F5;top:-110px;left:923px;}
+
+.detal{padding:25px 0px 0px 0px;}
+.detal p{letter-spacing: 1px;line-height: 25px;}
+
+.with_100{width:100%;}
+.min-h-180{min-height:180px;min-width:132px;}
+.index-title h2{font-size: 30px;font-weight: 600; padding-bottom: 10px;}
+.index-title p{padding-top:15px;font-size: 20px;font-weight: 600;}
+.overflow-height a{font-size: 14px;color:#4a4a4a;}
+.font{bottom: 0px;left:20px;}
+
+.thumbnail{max-height:330px;}
+.thumbnail .caption a{color: #4a4a4a;}
+.thumbnail .caption a:hover{color: #39F;}
+.thumbnail img{border: 0;}
+.max-80{max-height:80px;}
+.no-padding-lr{padding-left: 0; padding-right: 0;}
+@media screen and (max-width:768px){
+	.index-title h2{font-size: 20px;font-weight: 600;}
+	.index-title p{padding-top:15px;font-size: 16px;font-weight: 600;}
+	h3{font-size: 16px;}
+	.thumbnail{height:320px;}
+}

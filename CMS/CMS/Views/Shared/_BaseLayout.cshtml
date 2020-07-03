@@ -1,0 +1,25 @@
+﻿@{
+    Layout = "~/Views/Shared/_GlobalArgLayout.cshtml";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @RenderSection("TopStyles",required:false)
+</head>
+<body>
+    
+        @RenderBody()
+    
+    @Scripts.Render("~/bundles/jquerytwo")
+    @Scripts.Render("~/bundles/base")
+    @Scripts.Render("~/bundles/hplusjs")
+    @RenderSection("TopScripts", required: false)
+    <script>
+        
+    </script>
+    @RenderSection("BottomScripts",required: false)
+</body>
+</html>

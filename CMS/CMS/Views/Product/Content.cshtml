@@ -1,0 +1,58 @@
+﻿@{
+    Layout = "../Shared/_BaseLayout.cshtml";
+}
+@section TopStyles{
+
+
+}
+
+<button type="button" class="btn btn-primary" onclick="doBack()">返回</button>
+<button type="button" class="btn btn-primary" onclick="doSave()">保存</button>
+
+@section TopScripts{
+    <script id="container" name="content" type="text/plain">
+
+    </script>
+    <script src="~/Js/plugins/ueditor/ueditor.config.js"></script>
+    <script src="~/Js/plugins/ueditor/ueditor.all.js"></script>
+}
+@section BottomScripts{
+    <script>
+        $(document).ready(function () {
+            var ue = UE.getEditor('container');
+
+            var searchURL = window.location.search;
+            searchURL = searchURL.substring(1, searchURL.length);
+            var gid = searchURL.split("&")[0].split("=")[1];
+           
+
+            ue.ready(function () {
+                //设置编辑器的内容
+                var data = AjaxPost("/Product/GetContent?gid=" + gid, {}, function (result) {
+                    result = result.replaceAll('\\"', '\"')
+                    ue.setContent(result);
+                });
+                //ue.setContent('hello');
+            });
+
+        });
+        function doBack() {
+            window.location.href = "../Product/GoodsList";
+        }
+        function doSave() {
+
+            var searchURL = window.location.search;
+            searchURL = searchURL.substring(1, searchURL.length);
+            var gid = searchURL.split("&")[0].split("=")[1];
+            var ue = UE.getEditor('container');
+
+            var content = ue.getContent();
+            content = content.replaceAll('\"', '\'')
+            AjaxPost("/Product/EditContent", { gid: gid, content: content }, function (res) {
+                alert(res);
+            });
+
+            
+        }
+    </script>
+}

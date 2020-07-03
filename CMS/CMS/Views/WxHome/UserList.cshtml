@@ -1,0 +1,180 @@
+﻿@{
+    Layout = "~/Views/Shared/_TableLayout.cshtml";
+    ViewBag.Title = "优惠券";
+}
+@section TopStyles{
+    <link href="~/Content/Css/plugins/chosen/chosen.css" rel="stylesheet" />
+    <style>
+        .subnameright {
+            text-align: right !important;
+        }
+
+        .form-control {
+            height: 31px !important;
+        }
+
+        .iconstyle {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .iconstyle-add {
+            color: limegreen;
+        }
+
+        .iconstyle-delete {
+            color: orangered;
+        }
+
+        .toast-message {
+            white-space: pre-line;
+        }
+
+        .info-ul {
+            font-size: 15px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            padding-left: 0px;
+        }
+
+        ul:hover {
+            white-space: normal;
+            overflow: auto;
+        }
+
+        .info-li {
+            padding-left: 20px;
+        }
+    </style>
+
+}
+
+<button id="btn_add" type="button" class="btn btn-primary" onclick="doToggleUser()"><i class="fa fa-refresh" aria-hidden="true"></i> 设为普通用户/管理员</button>
+
+@section EditModal{
+    <div class="modal inmodal" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button id="dia_close" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+                </div>
+                <div id="dia_body" class="modal-body">
+                    <div class="ibox-content" id="formData">
+                        <form class="form-horizontal m-t" id="commentForm">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">名称：</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" v-model="Title" style="padding:2px">
+                                    <input type="text" class="form-control" v-model="Id" style="padding:2px;display:none">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">金额：</label>
+                                <div class="col-sm-7">
+                                    <input id="Amount" type="number" class="form-control" name="Amount" v-model="Amount" style="padding:2px">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">满减阈值：</label>
+                                <div class="col-sm-7">
+                                    <input id="LimitAmount" type="number" class="form-control" name="LimitAmount" v-model="LimitAmount" style="padding:2px">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">数量：</label>
+                                <div class="col-sm-7">
+                                    <input id="TotalCount" type="number" class="form-control" name="TotalCount" v-model="TotalCount" style="padding:2px">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">过期日期：</label>
+                                <div class="col-sm-7">
+                                    <input id="OverDate" class="form-control layer-date" name="OverDate" v-model="OverDate" style="padding:2px;max-width:999px" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                    <div class="pull-left">
+                        <div id="selDiv" class="checkbox i-checks checkbox-inline pull-left">
+                            优惠券添加后不能修改使用范围
+                        </div>
+
+                    </div>
+
+                    <button id="dia_ok" type="button" class="btn btn-primary" onclick="doSave()">提交</button>
+                    <button id="dia_close2" type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section scripts {
+    <script src="~/Scripts/plugins/chosen/chosen.jquery.js"></script>
+    <script src="~/Scripts/plugins/layer/laydate/laydate.js"></script>
+    <script type="text/javascript">
+        sortName = "IsAdmin";
+    sortOrder = "desc";
+    $tableurl = "../../WxHome/UserTable";
+    $pageSize = 25;
+    $escape = false;
+    $pagination = true
+    $singleSelect=true
+    columns = [
+             { checkbox: true, align: 'center', valign: 'middle' }
+             , {title: '头像', field: 'avatarUrl', align: 'center', valign: 'middle', width: '200px',cellStyle: formatImgStyle,formatter: formatImgFormatter}
+             , { title: '昵称', field: 'nickName', align: 'center', valign: 'middle' }
+             , { title: '地区', field: 'Area', align: 'center', valign: 'middle' }
+             , { title: '管理员', field: 'IsAdmin', align: 'center', valign: 'middle' }
+    ]
+
+    function queryParams(params) {
+        return {
+            pageSize: document.getElementsByClassName("page-size")[0].innerText,
+            pageIndex: parseInt(params.offset / $pageSize) + 1,//加1，与jqgrid保持一致
+            sort: params.sort,
+            order: params.order,
+            filter: params.search
+        };
+    }
+    var wholegoods;
+    var vue;
+    $(function () {
+        $loadTable(initTable);
+
+    });
+
+    function $rowDoubleClick(row) {
+        doToggleUser(row)
+    }
+    
+    function $rowClick(row) {
+
+    }
+    function $onRowEditableSave(field, row, oldValue, $el) {
+
+    }
+    
+    function doToggleUser(r) {
+        var row = r ? [r] : getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择用户！', "error");
+            return;
+        }
+        AjaxPost("../../WxHome/ToggleUser/stop/" + row[0].user_id, {}, false);
+        showTip("设置成功", "success");
+        refreshTable();
+    }
+
+
+    </script>
+}

@@ -1,0 +1,32 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div id="msg">
+    </div>
+    @Scripts.Render("~/bundles/jquerytwo")
+    <script>
+
+        $(function () {
+
+            if ("@ViewData["ErrType"]" == "alert") {
+                alert('@ViewData["ErrMsg"]')
+                
+                parent.closeCurrentPage()
+            }
+            else
+                document.getElementById("msg").innerHtml = '@ViewData["ErrMsg"]'
+
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,407 @@
+﻿@{
+    Layout = "~/Views/Shared/_TableLayout.cshtml";
+    ViewBag.Title = "分类列表";
+}
+@section TopStyles{
+<link href="~/Content/Css/plugins/chosen/chosen.css" rel="stylesheet" />
+<style>
+    .subnameright {
+        text-align: right !important;
+    }
+
+    #table {
+        width: 800px;
+        border: 1px #dddddd solid;
+    }
+
+    th {
+        border: 1px #dddddd solid;
+    }
+</style>
+
+
+
+}
+
+<div class="btn-group" style="padding-left:20px">
+    <button class="btn btn-primary" onclick="doAdd(1)">增加同级</button>
+    @*<button data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        <li>
+            <a href="#"  onclick="doAdd(2)">复制新增</a>
+        </li>
+    </ul>*@
+</div>
+<div class="btn-group">
+    <button class="btn btn-primary" onclick="doAdd(3)">增加子级</button>
+    @*<button data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+       <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        <li>
+            <a href="#"  onclick="doAdd(4)">复制新增子级</a>
+        </li>
+    </ul>*@
+</div>
+
+<button id="btn_delete" type="button" class="btn btn-primary" onclick="doAdd(5)"><i class="fa fa-edit" aria-hidden="true"></i> 修改</button>
+<button id="btn_delete" type="button" class="btn btn-danger" onclick="btn_delete()"><i class="fa fa-close" aria-hidden="true"></i> 删除</button>
+
+@section EditModal{
+<div class="modal inmodal" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated fadeIn">
+            <div class="modal-header">
+                <button id="dia_close" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+            </div>
+            <div id="dia_body" class="modal-body">
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="commentForm">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">名称：</label>
+                            <div class="col-sm-8">
+                                <input id="Name" name="name" minlength="2" maxlength="20" type="text" class="form-control field" required="" aria-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">商品：</label>
+                            <div class="col-sm-8">
+                                <select class="form-control m-b field chosenc" name="GoodsIds" id="GoodsIds" multiple data-placeholder="选择商品">
+  
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">排序：</label>
+                            <div class="col-sm-8">
+                                <input id="OrderIndex" type="number" class="form-control field" required="" aria-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">图片：</label>
+                            <div class="col-sm-8">
+                                <input id="Img" type="file" class="form-control field" name="Img" style="padding:2px" onchange="refreshFile()" accept="image/*">
+                                推荐使用宽高1:1 的图片
+                                <img id="ImgDom" src="" style="width:200px" class="field" />
+                            </div>
+                        </div>
+                        
+                        <input id="Id" style="display:none" class="form-control field" >
+                    </form>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+
+                <div class="pull-left">
+                    <div id="selDiv" class="checkbox i-checks checkbox-inline pull-left">
+
+                        <label id="lblcopy"><input type="checkbox" class="i-checks" checked id="copynew">复制新增</label>
+
+                    </div>
+
+                </div>
+
+                <button id="dia_ok" type="button" class="btn btn-primary" onclick="doSave()">提交</button>
+                <button id="dia_close2" type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+}
+
+@section scripts {
+<script src="~/Scripts/plugins/chosen/chosen.jquery.js"></script>
+    <script type="text/javascript">
+    sortName = "Id";
+    sortOrder = "asc";
+    $tableurl = "../../Product/CategoryTable";
+    $pageSize = 25;
+    $escape = false;
+    $pagination = false
+    $singleSelect = true
+    $clickToSelect=true
+    columns = [
+             {
+                 checkbox: true,
+                 align: 'center',
+                 valign: 'middle'
+             }, {
+                 title: '序号',
+                 field: 'Id',
+                 align: 'center',
+                 valign: 'middle',
+                 visible: false
+             }, {
+                 title: '路径',
+                 field: 'ImgUrl',
+                 align: 'center',
+                 valign: 'middle',
+                 width:'200px',
+                 //editable: true,
+                 cellStyle: formatImgStyle,
+                 formatter: formatImgFormatter
+             }, {
+                 title: '名称',
+                 field: 'Name',
+                 align: 'left',
+                 valign: 'middle',
+                 width:'200px'
+                 //editable: true,
+             }, {
+                 title: '排序',
+                 field: 'OrderIndex',
+                 align: 'center',
+                 valign: 'middle',
+                 width: '200px'
+                 //editable: true,
+             }
+    ]
+
+    //function queryParams(params) {
+    //    return {
+    //        pageSize: params.limit,
+    //        pageIndex: parseInt(params.offset / params.limit) + 1,//加1，与jqgrid保持一致
+    //        sort: params.sort,
+    //        order: params.order,
+    //        filter: params.search
+    //    };
+    //}
+    function queryParams(params) {
+        return {
+            pageSize: 0,
+            pageIndex: 0,//加1，与jqgrid保持一致
+            sort: params.sort,
+            order: params.order,
+            filter: params.search
+        };
+    }
+
+    $(function () {
+
+        $loadTable(initTable);
+        
+        
+    });
+    function $rowStyle(row, index) {
+        var style = {};
+        if ($numberUtils.toInt(row.ParId) > 0)
+            style = { css: { 'background-color': '#cffaf1' } };
+        else
+            style = { css: { 'background-color': '#cffad8' } };
+        return style;
+    }
+    var parid = 0;
+    function $onLoadSuccess(data) {
+    }
+    function btn_add() {
+        var rows = $table.bootstrapTable('getSelections');
+        var index = $table.bootstrapTable('getSelectedRowIndex');
+        if (rows.length == 0)
+            $table.bootstrapTable('append', {})
+        else
+            $table.bootstrapTable('insertRow', { index: index, row: {} })
+    }
+    function doAdd(type, dblrow) {
+        var row = getIdSelections();
+        if (dblrow)
+            row = [dblrow];
+        if (row.length == 0) {
+            if (type == 2 || type == 3 || type == 4 || type == 5) {
+                showTip('请选择数据！', "error");
+                return;
+            }
+        }
+        $("#Img").removeAttr("disabled");
+        $("#GoodsIds").removeAttr("disabled");
+        document.getElementById('Img').value = "";
+        $("#Name").val("")
+        $("#GoodsIds").val([]).trigger('change')
+        $("#Id").val("")
+        $("#OrderIndex").val(0)
+        $("#lblcopy")[0].style.display = "";
+        $("#ImgDom")[0].src = "";
+        $("#ImgDom")[0].style.display = "none";
+        //$("#ImgUrl").attr("disabled", "")
+
+        if (type == 1) {
+            if (row.length == 0 || row[0].ParId == 0) {
+                $("#Img").attr("disabled", "")
+                $("#GoodsIds").attr("disabled", "")
+            }
+            if (row[0] && row[0].ParId != undefined)
+                parid = row[0].ParId;
+            else
+                parid = 0
+        } else if (type == 2) {
+            if (row[0].ParId == 0) {
+                $("#Img").attr("disabled", "")
+                $("#GoodsIds").attr("disabled", "")
+            }
+            $("#Name").val(row[0].Name)
+            $("#ImgDom")[0].src = row[0].ImgUrl
+            $("#ImgDom")[0].style.display = "block";
+            parid = row[0].ParId;
+        } else if (type == 3) {
+            if (row[0].ParId > 0) {
+                showTip('不能为子级增加下级！', "error");
+                return;
+            }
+            parid = row[0].Id;
+        } else if (type == 4) {
+            if (row[0].ParId > 0) {
+                showTip('不能为子级增加下级！', "error");
+                return;
+            }
+            $("#Name").val(row[0].Name)
+            $("#ImgDom")[0].src = row[0].ImgUrl
+            $("#ImgDom")[0].style.display = "block";
+            parid = row[0].Id;
+        } else if (type == 5) {
+            if (row[0].ParId == 0) {
+                $("#ImgUrl").attr("disabled", "")
+                $("#GoodsIds").attr("disabled", "")
+            }
+            $("#Name").val(row[0].Name)
+            $("#Id").val(row[0].Id)
+            $("#ImgDom")[0].src = row[0].ImgUrl
+            $("#ImgDom")[0].style.display = "block";
+            $("#OrderIndex").val(row[0].OrderIndex)
+            $("#lblcopy")[0].style.display = "none";
+            $("#copynew")[0].checked = false;
+            parid = row[0].ParId;
+        }
+        refreshGoodsSelect(type,row[0])
+        if (type != 5) {
+            var orderindex = AjaxPost("../../Product/GetNextOrderIndex", { parid: parid }, false)
+            $("#OrderIndex").val(orderindex)
+        }
+        $('#EditModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+        
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function refreshGoodsSelect(type,row) {
+        $('.chosenc').chosen('destroy');
+        
+        var options = document.getElementById("GoodsIds").options
+        
+        var goods = AjaxPost("../../WxHome/GetGoods", {}, false);
+        options.length = 0;
+
+        goods.forEach(function (item, index) {
+            var option = new Option(item.title, item.id);
+            options.add(option);
+            if (type == 2 || type == 4 || type == 5) {
+                if (row.GoodsIds.split(',').indexOf(item.id) > -1)
+                    option.selected = true;
+            }
+        })
+        $('.chosenc').chosen({
+            width: '100%',
+            no_results_text: '未找到商品'
+        });
+        $('.chosenc').on('chosen:showing_dropdown', function (evt, params) {
+            console.log(evt, params);
+        });
+    }
+    function $rowDoubleClick(row) {
+        doAdd(5, row)
+    }
+    function refreshFile() {
+        var data = GetFormData();
+        var res = AjaxPost("../../WxHome/SaveBannerImg", data, false);
+        $("#ImgDom")[0].src = res;
+        $("#ImgDom")[0].style.display = "block";
+    }
+    function doSave() {
+        var data = GetFormData();
+        if (data.OrderIndex == 0) {
+            showTip('排序不能为0！', "error");
+            return
+        }
+        data.ParId = parseInt(parid);
+        var res = AjaxPost("../../Product/SaveCategory", data, false);
+        if (!String.IsNullOrEmpty(res)) {
+            showTip(res, "error");
+            return
+        } else {
+            showTip("保存成功", "success");
+            refreshTable();
+            var orderindex = AjaxPost("../../Product/GetNextOrderIndex", { parid: parid }, false)
+            $("#OrderIndex").val(orderindex)
+        }
+        if (!$("#copynew")[0].checked) {
+            $('#EditModal').modal('hide')
+            parid = 0;
+        } else {
+        }
+    }
+    function btn_delete() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        $('#myModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+        $("#dia_title").text("分类删除");
+        $("#dia_info").text("类别被删除后不能恢复，请谨慎操作！");
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function doConfirm() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        var Id = row[0].Id;
+        var count = AjaxPost('../../Product/DeleteCategory', { id: Id }, false);
+        if (count == 1) {
+            showTip("删除成功", "success");
+            refreshTable();
+            $('#myModal').modal('hide')
+        }
+    }
+    function $rowClick(row) {
+
+    }
+    function $onRowEditableSave(field, row, oldValue, $el) {
+
+    }
+    function btn_update() {
+        $.ajax({
+            type: "post",
+            url: "../MasterData/SyncCostCenter",
+            success: function (data, status) {
+                if (status == "success") {
+                    showTip('成功更新'+data+'条数据！', "success");
+                    refreshTable();
+                }
+                else {
+                    showTip('更新失败!', "error");
+                    refreshTable();
+                }
+            },
+            error: function () {
+
+                showTip('连接服务器超时！', "error");
+            },
+            complete: function () {
+
+            }
+
+        });
+    }
+    </script>
+}

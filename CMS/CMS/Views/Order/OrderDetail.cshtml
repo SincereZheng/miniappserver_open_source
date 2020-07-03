@@ -1,0 +1,339 @@
+﻿@{
+    Layout = "~/Views/Shared/_TableLayout.cshtml";
+    ViewBag.Title = "订单明细";
+}
+@section TopStyles{
+    <style>
+        .subnameright {
+            text-align: right !important;
+        }
+    </style>
+
+}
+
+@*<label class="btn"> 订单状态：</label>
+<select class="m-b field" name="orderstatus" id="orderstatus" title="订单状态" style="box-shadow: 0px 1px 1px rgba(90,90,90,0.1);
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;padding-top: 3px;
+    padding-bottom: 9px;" onchange="refreshTable()">
+    <option value="0">全部</option>
+    <option value="10">待付款</option>
+    <option value="20">已发货</option>
+    <option value="30">待收货</option>
+    <option value="40">已收货</option>
+</select>*@
+<button id="btn_delete" type="button" class="btn btn-primary" onclick="doAddDelivery()"><i class="fa fa-edit" aria-hidden="true"></i> 发货</button>
+<input id="OrderId" style="display:none" value="@ViewData["OrderId"]"/>
+@section EditModal{
+    <div class="modal inmodal" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button id="dia_close" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+                </div>
+                <div id="dia_body" class="modal-body">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="commentForm">
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">单号：</label>
+                                <div class="col-sm-8">
+                                    <input id="ExpressNo" type="text" class="form-control field" required="" aria-required="true" onchange="doChange()">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">承运公司：</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control field" name="ExpressCompany" id="ExpressCompany">
+                                        @foreach(System.Data.DataRow row in (ViewData["KdInfo"] as System.Data.DataTable).Rows)
+                                        {
+                                            <option value="@row["Code"].ToString()">@row["Name"].ToString()</option>
+                                        }
+                                    </select>
+                                    <span class="help-block m-b-none">即时查询 仅支持三家 申通，圆通，中通</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                    <div class="pull-left">
+                        <div id="selDiv" class="checkbox i-checks checkbox-inline pull-left">
+
+                            @*<label id="lblcopy"><input type="checkbox" class="i-checks" checked id="copynew">复制新增</label>*@
+
+                        </div>
+
+                    </div>
+
+                    <button id="dia_ok" type="button" class="btn btn-primary" onclick="doSave()">提交</button>
+                    <button id="dia_close2" type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section scripts {
+    <script type="text/javascript">
+        sortName = "dAddTime";
+    sortOrder = "desc";
+    $tableurl = "/Order/OrderDetailListTable";
+    $pageSize = 25;
+    $escape = false;
+    $pagination = true
+    $singleSelect=false
+    columns = [
+             {
+                 checkbox: true,
+                 align: 'center',
+                 valign: 'middle'
+             }, {
+                 title: '订单号',
+                 field: 'OrderNo',
+                 align: 'center',
+                 valign: 'middle',
+                 //editable: true,
+             }, {
+                 title: '商品',
+                 field: 'Title',
+                 align: 'center',
+                 valign: 'middle',
+                 //sortable:true
+                 //editable: true,
+             }, {
+                 title: '商品属性',
+                 field: 'Name',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }, {
+                 title: '价格',
+                 field: 'Price',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }, {
+                 title: '数量',
+                 field: 'Number',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }, {
+                 title: '金额',
+                 field: 'Amount',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }, {
+                 title: '剩余库存',
+                 field: 'KuCun',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }, {
+                 title: '订单状态',
+                 field: 'OrderStatusText',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true,
+                 cellStyle: function (value, row, index) {
+                     var bgcolor = "";
+                     var color = "";
+                     if (row.OrderStatus == 10)
+                         bgcolor = 'yellow'
+                     else if (row.OrderStatus == 20) {
+                         bgcolor = 'red'
+                         color = "white"
+                     }
+                     else if (row.OrderStatus == 30) {
+                         bgcolor = 'green'
+                         color = "white"
+                     }
+                     else if (row.OrderStatus == 40)
+                         color = 'black'
+                     return {
+                         css: {
+                             "background-color": bgcolor,
+                             "color": color,
+                         }
+                     }
+                 }
+                 //editable: true,
+             }, {
+                 title: '快递单号',
+                 field: 'ExpressNo',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }, {
+                 title: '承运公司',
+                 field: 'ExpressCompany',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }, {
+                 title: '添加时间',
+                 field: 'dAddTime',
+                 align: 'center',
+                 valign: 'middle',
+                 sortable: true
+                 //editable: true,
+             }
+    ]
+
+    function queryParams(params) {
+        return {
+            pageSize: params.limit,
+            pageIndex: parseInt(params.offset / params.limit) + 1,//加1，与jqgrid保持一致
+            sort: params.sort,
+            order: params.order,
+            filter: params.search,
+            OrderId: $("#OrderId").val()
+        };
+    }
+
+
+    $(function () {
+
+        $loadTable(initTable);
+
+    });
+
+    function $onLoadSuccess(data) {
+    }
+
+    function doAddDelivery() {
+        var rows = getIdSelections();
+
+        if (rows.length == 0) {
+            showTip('请选择数据！', "error");
+            return;
+        }
+        var b = false;
+        rows.forEach(function (item, index) {
+            if (!String.IsNullOrEmpty(item.ExpressNo)) {
+                showTip('第' + (index + 1) + '行明细已发货，请重新选择！', "error");
+                b = true;
+                return;
+            }
+        });
+        if (b)
+            return;
+        $("#ExpressNo").val("")
+        $("#ExpressCompany").val("")
+        $('#EditModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function $rowDoubleClick(row) {
+        //parent.openTab('../Order/OrderDetail','订单明细')
+    }
+    function doSave() {
+        var data = GetFormData();
+        if (String.IsNullOrEmpty(data.ExpressNo)) {
+            showTip('快递单号不能为空！', "error");
+            return
+        }
+        var rows = getIdSelections();
+        var ids = "";
+        rows.forEach(function (row, index) {
+            ids = ids + row.OrderDetailId + ","
+        })
+        if (ids.length > 0)
+            ids = ids.substr(0, ids.length - 1)
+        data["OrderDetailIds"] = ids;
+        var res = AjaxPost("../../../../Order/OrderFaHuo", data, false);
+        if (!String.IsNullOrEmpty(res)) {
+            showTip(res, "error");
+            return
+        } else {
+            showTip("保存成功", "success");
+            refreshTable(false,true);
+            $('#EditModal').modal('hide')
+        }
+
+    }
+    function doChange() {
+
+    }
+    function btn_delete() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        $('#myModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+        $("#dia_title").text("商品删除");
+        $("#dia_info").text("商品被删除后不能恢复。\n 请谨慎操作！");
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function doConfirm() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        var Id = row[0].Id;
+        var count = AjaxGet('../../Product/DeleteGoods', { id: Id }, false);
+        if (count == 1) {
+            showTip("删除成功", "success");
+            refreshTable();
+            $('#myModal').modal('hide')
+        }
+    }
+    function doUpOrDown(type) {
+        var rows = getIdSelections();
+        if (rows.length == 0) {
+            showTip('请选择数据！', "error");
+            return;
+        }
+        var data = {};
+        data.display = type;
+        data.Id = rows[0].Id;
+        var res = AjaxPost("../../Product/UpDownGoods", data, false);
+        if (res == 1) {
+            showTip("操作成功", "success");
+            refreshTable();
+        }
+    }
+    function $rowClick(row) {
+
+    }
+    function $onRowEditableSave(field, row, oldValue, $el) {
+
+    }
+    function doEditContent(row) {
+        var rows = getIdSelections();
+        if (row)
+            rows[0] = row
+        if (rows.length == 0) {
+            showTip('请选择要编辑的商品！', "error");
+            return;
+        }
+        window.location.href = "../Product/Content?gid=" + rows[0].Id;
+    }
+    </script>
+}

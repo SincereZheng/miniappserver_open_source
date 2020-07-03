@@ -1,0 +1,66 @@
+﻿@{
+    Layout = "../Shared/_BaseLayout.cshtml";
+}
+@section TopStyles{
+
+
+}
+
+<select class="form-control field" name="GoodsId" id="GoodsId" onchange="refreshImage()">
+    @foreach (System.Data.DataRow row in (ViewData["Goods"] as System.Data.DataTable).Rows)
+    {
+        <option value="@row["Id"].ToString()">@row["Title"].ToString()</option>
+    }
+</select>
+
+<button type="button" class="btn btn-primary" onclick="doSave()">保存</button>
+
+@section TopScripts{
+    <script id="container" name="content" type="text/plain">
+
+    </script>
+    <script src="~/Js/plugins/ueditor/ueditor.config.js"></script>
+    <script src="~/Js/plugins/ueditor/ueditor.all.js"></script>
+}
+@section BottomScripts{
+    <script>
+
+        $(document).ready(function () {
+            window.UEDITOR_CONFIG.toolbars = [[
+            'insertimage'
+            ]]
+            
+            refreshImage();
+        });
+
+        function refreshImage() {
+            var ue = UE.getEditor('container');
+
+            var gid = $("#GoodsId").val()
+
+
+            ue.ready(function () {
+                //设置编辑器的内容
+                var data = AjaxPost("../Product/GetGoodsImage?gid=" + gid, {}, function (result) {
+                    ue.setContent(result[0].content);
+                });
+                //ue.setContent('hello');
+            });
+        }
+
+        function doSave() {
+
+            var gid = $("#GoodsId").val()
+            var ue = UE.getEditor('container');
+
+            var content = ue.getContent();
+            content = content.replaceAll('\"', '\'')
+            AjaxPost("../Product/EditGoodsImage", { gid: gid, content: content }, function (res) {
+                alert(res);
+                refreshImage();
+            });
+
+
+        }
+    </script>
+}

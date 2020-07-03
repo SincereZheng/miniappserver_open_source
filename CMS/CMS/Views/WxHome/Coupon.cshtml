@@ -1,0 +1,424 @@
+﻿@{
+    Layout = "~/Views/Shared/_TableLayout.cshtml";
+    ViewBag.Title = "优惠券";
+}
+@section TopStyles{
+<link href="~/Content/Css/plugins/chosen/chosen.css" rel="stylesheet" />
+    <style>
+        .subnameright {text-align: right !important; }
+        .form-control {height: 31px !important;}
+        .iconstyle{font-size:24px;cursor:pointer}
+        .iconstyle-add{color:limegreen;}
+         .iconstyle-delete{ color:orangered;}
+         .toast-message{white-space:pre-line;}
+         .info-ul{font-size: 15px;overflow: hidden; white-space: nowrap;text-overflow: ellipsis; padding-left: 0px;}
+         ul:hover{white-space: normal;overflow: auto;}
+         .info-li{ padding-left: 20px;}
+    </style>
+
+}
+
+<button id="btn_add" type="button" class="btn btn-primary" onclick="doAdd()"><i class="fa fa-plus" aria-hidden="true"></i> 增加</button>
+<button id="btn_add" type="button" class="btn btn-primary" onclick="doUsing()"><i class="fa fa-play-circle" aria-hidden="true"></i> 启用</button>
+<button id="btn_add" type="button" class="btn btn-primary" onclick="doStopUsing()"><i class="fa fa-stop" aria-hidden="true"></i> 停用</button>
+<button id="btn_delete" type="button" class="btn btn-danger" onclick="btn_delete()"><i class="fa fa-trash" aria-hidden="true"></i> 删除</button>
+
+@section EditModal{
+    <div class="modal inmodal" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button id="dia_close" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+                </div>
+                <div id="dia_body" class="modal-body">
+                    <div class="ibox-content" id="formData">
+                        <form class="form-horizontal m-t" id="commentForm">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">名称：</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" v-model="Title" style="padding:2px">
+                                    <input type="text" class="form-control" v-model="Id" style="padding:2px;display:none">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">金额：</label>
+                                <div class="col-sm-7">
+                                    <input id="Amount" type="number" class="form-control" name="Amount" v-model="Amount" style="padding:2px">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">满减阈值：</label>
+                                <div class="col-sm-7">
+                                    <input id="LimitAmount" type="number" class="form-control" name="LimitAmount" v-model="LimitAmount" style="padding:2px">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">数量：</label>
+                                <div class="col-sm-7">
+                                    <input id="TotalCount" type="number" class="form-control" name="TotalCount" v-model="TotalCount" style="padding:2px">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">过期日期：</label>
+                                <div class="col-sm-7">
+                                    <input id="OverDate" class="form-control layer-date" name="OverDate" v-model="OverDate" style="padding:2px;max-width:999px" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                                    
+                                </div>
+                            </div>
+        
+                        </form>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                    <div class="pull-left">
+                        <div id="selDiv" class="checkbox i-checks checkbox-inline pull-left">
+                            优惠券添加后不能修改使用范围
+                        </div>
+
+                    </div>
+
+                    <button id="dia_ok" type="button" class="btn btn-primary" onclick="doSave()">提交</button>
+                    <button id="dia_close2" type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section scripts {
+<script src="~/Scripts/plugins/chosen/chosen.jquery.js"></script>
+<script src="~/Scripts/plugins/layer/laydate/laydate.js"></script>
+    <script type="text/javascript">
+        sortName = "OverDate";
+    sortOrder = "desc";
+    $tableurl = "../../WxHome/CouponTable";
+    $pageSize = 25;
+    $escape = false;
+    $pagination = true
+    $singleSelect=true
+    columns = [
+             { checkbox: true, align: 'center', valign: 'middle' }
+             , { title: '名称', field: 'Title', align: 'center', valign: 'middle' }
+             , { title: '数量', field: 'TotalCount', align: 'center', valign: 'middle' }
+             , { title: '剩余数量', field: 'RemainCount', align: 'center', valign: 'middle' }
+             , { title: '面值', field: 'Amount', align: 'right', valign: 'middle' }
+             , { title: '满减阈值', field: 'LimitAmount', align: 'right', valign: 'middle' }
+             , { title: '创建时间', field: 'CreateDate', align: 'center', valign: 'middle' }
+             , { title: '过期时间', field: 'OverDate', align: 'center', valign: 'middle' }
+             , { title: '是否停用', field: 'IsStopUsingText', align: 'center', valign: 'middle' }
+             , { title: '操作', field: '', align: 'center', valign: 'middle', formatter: function (value, row, index) { var b = '<button type="button" class="btn btn-primary" onclick="showLimit('+row.Id+')">查看使用范围</button>'; return b } }
+    ]
+
+    function queryParams(params) {
+        return {
+            pageSize: document.getElementsByClassName("page-size")[0].innerText,
+            pageIndex: parseInt(params.offset / $pageSize) + 1,//加1，与jqgrid保持一致
+            sort: params.sort,
+            order: params.order,
+            filter: params.search
+        };
+    }
+    var wholegoods;
+    var vue;
+    $(function () {
+        $loadTable(initTable);
+        
+        vue = new Vue({
+            el: '#formData',
+            data: { Title: '', Amount: 0, LimitAmount: 0, TotalCount: 0, OverDate:'',Id:0}
+        });
+        
+        wholegoods = AjaxPost("../../WxHome/GetGoods/includeall", {}, false);
+        
+    });
+    function initChosen() {
+        $('.chosenc').chosen("destroy");
+        $('.chosenc').chosen({
+            width: '100%',
+            no_results_text: '未找到商品'
+        });
+    }
+
+    function initSelectOptions() {
+        var goods = [];
+        wholegoods.forEach(function (g, index) {
+            var b = false
+            $('select.goods').each(function (index, dom) {
+                if (g.id == dom.value)
+                    b = true;
+            })
+            if (!b)
+                goods.push(g)
+        })
+        var doms = document.getElementsByTagName('select');
+        for (var i = 0; i < doms.length; i++) {
+            var dom = doms[i];
+            if (dom.classList.contains("goods")) {
+                goods.forEach(function (g, index) {
+                    var option = new Option(g.title, g.id);
+                    dom.options.add(option)
+                })
+            }
+        }
+    }
+    function beforeAddItem() {
+        var b = true
+        $('select.goods').each(function (index, dom) {
+            if ($numberUtils.isZero(dom.value)) {
+                b = false;
+            }
+        })
+        return b;
+    }
+    function additem(first) {
+        var b = true;
+        if (!first) {
+            b = beforeAddItem();
+        }
+        if (b) {
+            var form = $("form")
+            var label = first ? "范围：" : '';
+            var offset = first ? "" : 'col-sm-offset-2';
+            var none = first ? "style='display:none'" : '';
+            var html = '<div class="form-group">' +
+                                    '<label class="col-sm-2 control-label">' + label + '</label>' +
+                                   ' <div class="col-sm-7">' +
+                                        '<select class="form-control m-b field chosenc goods" data-placeholder="选择商品" onchange="doSelectGoods(this)">' +
+
+                                        '</select>' +
+                                    '</div>' +
+                                    '<div class="col-sm-7 ' + offset + '">' +
+                                        '<select class="form-control m-b field chosenc sku" multiple data-placeholder="选择属性" onchange="doSelectSku(this)">' +
+
+                                        '</select>' +
+                                    '</div>' +
+                                    '<div class="col-sm-2">' +
+                                        '<i class="fa fa-plus iconstyle iconstyle-add" aria-hidden="true" onclick="additem()"></i>' +
+                                        '<i class="fa fa-trash iconstyle iconstyle-delete" aria-hidden="true" onclick="trashitem(this)" ' + none + '></i>' +
+                                    '</div>' +
+                                '</div>'
+            form.append(html)
+            initSelectOptions()
+            initChosen()
+        }
+    }
+    function trashitem(t) {
+        t.parentElement.parentElement.parentElement.removeChild(t.parentElement.parentElement)
+    }
+    function $onLoadSuccess(data) {
+    }
+    function doAdd(type, dblrow) {
+        clearData();
+        if (type == 2) {
+            vue.Title = dblrow.Title
+            vue.Amount = dblrow.Amount
+            vue.LimitAmount = dblrow.LimitAmount
+            vue.TotalCount = dblrow.TotalCount
+            vue.OverDate = dblrow.OverDate
+            vue.Id = dblrow.Id
+        } else {
+            additem(true);
+        }
+        $('#EditModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function doSelectGoods(goodselectdom) {
+        var skudom = $(goodselectdom.parentElement.parentElement).find("select.sku")[0];
+        var skus = AjaxPost("../../WxHome/GetGoodsSkus/includeall/" + goodselectdom.value, {}, false);
+        skudom.options.length = 0;
+        skus.forEach(function (sku, index) {
+            var option = new Option(sku.title, sku.id);
+            skudom.options.add(option);
+        });
+
+        initChosen()
+    }
+    function doSelectSku(dom) {
+        if ($(dom).val()) {
+            if ($(dom).val().indexOf('0') > -1) {
+                for (var i = 0; i < dom.options.length; i++) {
+                    var opt = dom.options[i];
+                    if(opt.value == "0")
+                        opt.selected = true
+                    else
+                        opt.selected = false
+                }
+                initChosen()
+            }
+        }
+    }
+    function clearData() {
+        vue.Title = "";
+        vue.OverDate = "";
+        vue.Amount = 0;
+        vue.LimitAmount = 0;
+        vue.TotalCount = 0;
+        var form = $("form");
+        var select = $('select.goods');
+        select.each(function (index, t) {
+            t.parentElement.parentElement.parentElement.removeChild(t.parentElement.parentElement)
+        })
+    }
+    function $rowDoubleClick(row) {
+        doAdd(2, row)
+    }
+    function checkData() {
+        if (String.IsNullOrEmpty(vue.Title)) {
+            showTip('名称不能为空', "error");
+            return
+        }
+        if ($numberUtils.isZero(vue.Amount)) {
+            showTip('金额不能为0！', "error");
+            return
+        }
+        if (String.IsNullOrEmpty($("#OverDate").val())) {
+            showTip('过期日期不能为空！', "error");
+            return
+        }
+        if ($numberUtils.isZero(vue.TotalCount)) {
+            showTip('数量不能为0！', "error");
+            return
+        }
+        return true
+    }
+    function getChosenData() {
+        var select = $('select.goods');
+        var IDS = [];
+        select.each(function (index, t) {
+            var opts = $(t.parentElement.parentElement).find("select.sku")[0].options;
+            var selectsku = false
+            for (var i = 0; i < opts.length; i++) {
+                var opt = opts[i];
+                if (opt.selected) {
+                    selectsku = true;
+                    var item = {};
+                    item.GoodsId = $(t).val();
+                    item.SkuId = opt.value;
+                    IDS.push(item);
+                }
+            }
+            if (opts.length == 0 || !selectsku) {
+                var item = {};
+                item.GoodsId = $(t).val();
+                item.SkuId = 0;
+                IDS.push(item);
+            }
+        })
+        return IDS;
+    }
+    function doSave() {
+        if (checkData()) {
+            vue._data.IDS = JSON.stringify(getChosenData());
+            vue._data.OverDate = $("#OverDate").val();
+            var res = AjaxPost("../../WxHome/SaveCoupon", vue._data, false);
+            if (!String.IsNullOrEmpty(res)) {
+                showTip(res, "error");
+                return
+            } else {
+                showTip("保存成功", "success");
+                refreshTable();
+            }
+            $('#EditModal').modal('hide')
+        }
+    }
+    function btn_delete() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        $('#myModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+        $("#dia_title").text("优惠券删除");
+        $("#dia_info").text("优惠券被删除后不能恢复，请谨慎操作！");
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    function doConfirm() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要删除的数据！', "error");
+            return;
+        }
+        var Id = row[0].Id;
+        var count = AjaxPost('../../WxHome/DeleteCoupon/delete/' + Id, {}, false);
+        if (count == 1) {
+            showTip("删除成功", "success");
+            refreshTable();
+            $('#myModal').modal('hide')
+        }
+    }
+    function $rowClick(row) {
+
+    }
+    function $onRowEditableSave(field, row, oldValue, $el) {
+
+    }
+    function refreshFile() {
+        var data = GetFormData();
+        var res = AjaxPost("../../WxHome/SaveBannerImg", data, false);
+        $("#ImgDom")[0].src = res;
+    }
+    function doStopUsing() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要停用的数据！', "error");
+            return;
+        }
+        if (row[0].IsStopUsing == 1) {
+            showTip('该优惠券已停用', "error");
+            return;
+        }
+        AjaxPost("../../WxHome/StopUsingCoupon/stop/" + row[0].Id, {}, false);
+        showTip("停用成功", "success");
+        refreshTable();
+    }
+    function doUsing() {
+        var row = getIdSelections();
+        if (row.length == 0) {
+            showTip('请选择需要启用的数据！', "error");
+            return;
+        }
+        if (row[0].IsStopUsing == 0) {
+            showTip('该优惠券已启用', "error");
+            return;
+        }
+        AjaxPost("../../WxHome/StopUsingCoupon/using/" + row[0].Id, {}, false);
+        showTip("停用成功", "success");
+        refreshTable();
+    }
+    function showLimit(id) {
+        var res = AjaxPost("../../WxHome/GetCouponLimit/using/" + id, {}, false);
+        var html = "";
+        res.forEach(function (item, index) {
+            var title = '<ul class="info-ul">' + item.gname + '：</ul>';
+            var skuhtml = "";
+            item.skus.forEach(function (sku, i) {
+                skuhtml = skuhtml + '<li class="info-li">' + sku.sku + '</li>'
+            })
+            html = html + title + skuhtml;
+        })
+        $("#infoModalbody")[0].innerHTML = "";
+        $("#infoModalbody").append(html)
+
+        $('#infoModal').modal({ backdrop: 'static', keyboard: false });
+
+        $("#dia_icon").addClass("fa-question-circle").removeClass("fa-exclamation");
+
+        $("#dia_close").show();
+        $("#dia_close2").show().text("关闭");
+        $("#dia_ok").show().text("确定");
+    }
+    </script>
+}
