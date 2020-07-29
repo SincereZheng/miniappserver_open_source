@@ -226,8 +226,8 @@
         }
         var b = false;
         rows.forEach(function (item, index) {
-            if (!String.IsNullOrEmpty(item.ExpressNo)) {
-                showTip('第' + (index + 1) + '行明细已发货，请重新选择！', "error");
+            if (item.OrderStatus != 20) {
+                showTip('第' + (index + 1) + '行明细状态不为待发货状态，请重新选择！', "error");
                 b = true;
                 return;
             }
